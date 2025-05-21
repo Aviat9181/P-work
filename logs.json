@@ -1,0 +1,29 @@
+[
+    {
+        "type": "start of programm",
+        "time": "2025-05-21 15:41:23"
+    },
+    {
+        "type": "user question",
+        "data": {
+            "name": "Zenit"
+        },
+        "answer": {
+            "wins": 17,
+            "losses": 13,
+            "delta": 4
+        },
+        "time": "2025-05-21 15:41:36"
+    },
+    {
+        "type": "user question",
+        "data": {
+            "id_1": 1,
+            "id_2": 4
+        },
+        "answer": {
+            "answer": 1
+        },
+        "time": "2025-05-21 15:41:47"
+    }
+]
