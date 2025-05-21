@@ -79,6 +79,7 @@ for cur in teams.json():
     init(team_id, id_score)
     id_score[team_id]['players'] = cur['players']
 
+
 # cur = matches.json()[1]
 # print(cur, id_score[cur['team1']]['players'], id_score[cur['team2']]['players'])
 # print(id_to_team[cur['team1']], id_to_team[cur['team2']])

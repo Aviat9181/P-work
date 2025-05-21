@@ -2,6 +2,7 @@ import json
 import requests as rq
 from datetime import datetime
 
+
 def init(team_id,id_score):
     while len(id_score) <= team_id:
         id_score.append(dict())
