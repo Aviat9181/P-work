@@ -1,52 +1,9 @@
 import json
 import requests as rq
-from datetime import datetime
-
-def init(team_id):
-    global id_score
-    while len(id_score) <= team_id:
-        id_score.append(dict())
-    if not 'delta' in id_score[team_id].keys():
-        id_score[team_id]['delta'] = 0
-        id_score[team_id]['wins'] = 0
-        id_score[team_id]['losses'] = 0
-
-def check_correct(resp):
-    if not isinstance(resp, rq.Response):
-        print("Error. Maybe, server returned incorrect answer or bad connection")
-    else:
-        status=resp.status_code
-        if status>=300:
-            print(status,'Error')
-            if status==401:
-                print("Maybe token is invalid or empty")
-
-            with open('logs.json','r') as f:
-                log=json.load(f)
-            current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            error_data={"type":"response error","status code":status,"time":current_time}
-            log.append(error_data)
-            with open('logs.json','w') as f:
-                json.dump(log,f,indent=4)
-            exit(0)
-
-def add_question_to_logs(question,data,answer):
-    with open('logs.json','r') as f:
-        log=json.load(f)
-    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    question_data={"type":"user question","name":question,"data":data,"answer":answer,"time":current_time}
-    log.append(question_data)
-    with open('logs.json','w') as f:
-        json.dump(log,f,indent=4)
-
-def add_start_action_to_logs():
-    with open('logs.json','r') as f:
-        log=json.load(f)
-    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    start_data={"type":"start of programm","time":current_time}
-    log.append(start_data)
-    with open('logs.json','w') as f:
-        json.dump(log,f,indent=4)
+from functions import add_start_action_to_logs
+from functions import check_correct
+from functions import init
+from functions import add_question_to_logs
 
 
 add_start_action_to_logs()
@@ -103,8 +60,8 @@ for cur in matches.json():
     team1_id = cur['team1']
     team2_id = cur['team2']
 
-    init(team1_id)
-    init(team2_id)
+    init(team1_id,id_score)
+    init(team2_id,id_score)
 
     id_score[team1_id]['delta'] += (team1_score - team2_score)
     id_score[team2_id]['delta'] += (team2_score - team1_score)
@@ -117,7 +74,7 @@ for cur in matches.json():
 
 for cur in teams.json():
     team_id = cur['id']
-    init(team_id)
+    init(team_id,id_score)
     id_score[team_id]['players'] = cur['players']
 
 # cur = matches.json()[1]
