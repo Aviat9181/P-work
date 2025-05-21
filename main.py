@@ -34,7 +34,7 @@ def add_question_to_logs(question,data,answer):
     with open('logs.json','r') as f:
         log=json.load(f)
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    question_data={"type":"user question","data":data,"answer":answer,"time":current_time}
+    question_data={"type":"user question","name":question,"data":data,"answer":answer,"time":current_time}
     log.append(question_data)
     with open('logs.json','w') as f:
         json.dump(log,f,indent=4)
@@ -77,6 +77,7 @@ for cur in teams.json():
     for pl_id in cur['players']:
         players_id.append(pl_id)
 
+# не забыть закомментить!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 cnt = 0
 for pl_id in players_id:
     cnt += 1
@@ -140,15 +141,16 @@ while True:
         losses = id_score[team_id]['losses']
         delta = id_score[team_id]['delta']
 
-        ans={'wins':wins,'losses':losses,'delta':delta}
+        data_answer={'wins':wins,'losses':losses,'delta':delta}
         data={'name':name}
-        add_question_to_logs(question[0],data,ans)
+        add_question_to_logs(question[0],data,data_answer)
 
         print(wins, losses, delta)
     elif question[0] == 'versus?':
         id_1 = int(question[1])
         id_2 = int(question[2])
         answer = 0
+        data_matches=[]
         for cur in matches.json():
             team1_id = cur['team1']
             team2_id = cur['team2']
@@ -158,13 +160,18 @@ while True:
             team1_id2 = id_2 in team1_players
             team2_id1 = id_1 in team2_players
             team2_id2 = id_2 in team2_players
-            if team1_id1 and team2_id2:
+            if (team1_id1 and team2_id2) or (team1_id2 and team2_id1):
                 answer += 1
-            elif team1_id2 and team2_id1:
-                answer += 1
+                current_match_info=cur
+                current_match_info['team1_name']=id_to_team[team1_id]
+                current_match_info['team2_name']=id_to_team[team2_id]
+                current_match_info['team1_players']=id_score[team1_id]['players']
+                current_match_info['team2_players']=id_score[team2_id]['players']
+                data_matches.append(current_match_info)
         
         data={'id_1':id_1,'id_2':id_2}
-        add_question_to_logs(question[0],data,{'answer':answer})
+        data_answer={'answer':answer,'matches':data_matches}
+        add_question_to_logs(question[0],data,data_answer)
         print(answer)
     else:
         add_question_to_logs(question[0],"incorrect question","incorrect question")
