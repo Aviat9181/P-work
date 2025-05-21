@@ -34,7 +34,7 @@ def add_question_to_logs(question,data,answer):
     with open('logs.json','r') as f:
         log=json.load(f)
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    question_data={"type":"user question","data":data,"answer":answer,"time":current_time}
+    question_data={"type":"user question","name":question,"data":data,"answer":answer,"time":current_time}
     log.append(question_data)
     with open('logs.json','w') as f:
         json.dump(log,f,indent=4)
