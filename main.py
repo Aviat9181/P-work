@@ -36,10 +36,10 @@ for cur in teams.json():
     for pl_id in cur['players']:
         players_id.append(pl_id)
 
-# cnt=0
+# cnt = 0
 for pl_id in players_id:
-    # cnt+=1
-    # if cnt>=3:break
+    # cnt += 1
+    # if cnt >= 3: break
     url = 'https://lksh-enter.ru/players/' + str(pl_id)
     player = rq.get(url, headers=header)
     name = player.json()['name'] + ' ' + player.json()['surname']
@@ -50,10 +50,10 @@ players = sorted(list(set(players)))
 for player in players:
     print(player)
 
-# cnt=0
+# cnt = 0
 for cur in matches.json():
-    # cnt+=1
-    # if cnt>=5:break
+    # cnt += 1
+    # if cnt >= 3: break
     # print(cur)
     team1_score = cur['team1_score']
     team2_score = cur['team2_score']
@@ -77,16 +77,16 @@ for cur in teams.json():
     init(team_id)
     id_score[team_id]['players'] = cur['players']
 
-# cur=matches.json()[0]
-# print(cur,id_score[cur['team1']]['players'],id_score[cur['team2']]['players'])
+# cur = matches.json()[1]
+# print(cur, id_score[cur['team1']]['players'], id_score[cur['team2']]['players'])
+# print(id_to_team[cur['team1']], id_to_team[cur['team2']])
 
 while True:
-    question = input().split()
+    question_str = input()
+    question = question_str.split()
     if question[0] == 'stats?':
-        name = question[1]
-        if len(name) < 2:
-            print(0, 0, 0)
-        name = name[1:-1]
+        pos = 8
+        name = question_str[pos:len(question_str) - 1]
 
         if not name in team_to_id.keys():
             print(0, 0, 0)
