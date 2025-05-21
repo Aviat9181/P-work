@@ -38,10 +38,10 @@ for cur in teams.json():
     for pl_id in cur['players']:
         players_id.append(pl_id)
 
-cnt=0
+#cnt=0
 for pl_id in players_id:
-    cnt+=1
-    if cnt>=10:break
+    #cnt+=1
+    #if cnt>=3:break
     url = 'https://lksh-enter.ru/players/' + str(pl_id)
     player = rq.get(url, headers=header)
     name = player.json()['name'] + ' ' + player.json()['surname']
@@ -80,6 +80,10 @@ for cur in teams.json():
     init(team_id)
     id_score[team_id]['players']=cur['players']
 
+
+#cur=matches.json()[0]
+#print(cur,id_score[cur['team1']]['players'],id_score[cur['team2']]['players'])
+
 while True:
     question = input().split()
     if question[0] == 'stats?':
@@ -97,8 +101,8 @@ while True:
         delta = id_score[team_id]['delta']
         print(wins, losses, delta)
     elif question[0]=='versus?':
-        id_1=question[1]
-        id_2=question[2]
+        id_1=int(question[1])
+        id_2=int(question[2])
         answer=0
         for cur in matches.json():
             team1_id = cur['team1']
