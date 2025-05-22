@@ -1,53 +1,9 @@
 import json
 import requests as rq
-from datetime import datetime
-
-def init(team_id):
-    global id_score
-    while len(id_score) <= team_id:
-        id_score.append(dict())
-    if not 'delta' in id_score[team_id].keys():
-        id_score[team_id]['delta'] = 0
-        id_score[team_id]['wins'] = 0
-        id_score[team_id]['losses'] = 0
-
-def check_correct(resp):
-    if not isinstance(resp, rq.Response):
-        print("Error. Maybe, server returned incorrect answer or bad connection")
-    else:
-        status=resp.status_code
-        if status>=300:
-            print(status,'Error')
-            if status==401:
-                print("Maybe token is invalid or empty")
-
-            with open('logs.json','r') as f:
-                log=json.load(f)
-            current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            error_data={"type":"response error","status code":status,"time":current_time}
-            log.append(error_data)
-            with open('logs.json','w') as f:
-                json.dump(log,f,indent=4)
-            exit(0)
-
-def add_question_to_logs(question,data,answer):
-    with open('logs.json','r') as f:
-        log=json.load(f)
-    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    question_data={"type":"user question","name":question,"data":data,"answer":answer,"time":current_time}
-    log.append(question_data)
-    with open('logs.json','w') as f:
-        json.dump(log,f,indent=4)
-
-def add_start_action_to_logs():
-    with open('logs.json','r') as f:
-        log=json.load(f)
-    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    start_data={"type":"start of programm","time":current_time}
-    log.append(start_data)
-    with open('logs.json','w') as f:
-        json.dump(log,f,indent=4)
-
+from functions import add_start_action_to_logs
+from functions import check_correct
+from functions import init
+from functions import add_question_to_logs
 
 add_start_action_to_logs()
 
@@ -77,11 +33,14 @@ for cur in teams.json():
     for pl_id in cur['players']:
         players_id.append(pl_id)
 
-# не забыть закомментить!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 cnt = 0
 for pl_id in players_id:
+
+    # ограничение на число выводимых игроков (спрашивать всех слишком долго):
     cnt += 1
-    if cnt >= 3: break
+    if cnt >= 5: break
+
     url = 'https://lksh-enter.ru/players/' + str(pl_id)
     player = rq.get(url, headers=header)
     check_correct(player)
@@ -103,8 +62,8 @@ for cur in matches.json():
     team1_id = cur['team1']
     team2_id = cur['team2']
 
-    init(team1_id)
-    init(team2_id)
+    init(team1_id, id_score)
+    init(team2_id, id_score)
 
     id_score[team1_id]['delta'] += (team1_score - team2_score)
     id_score[team2_id]['delta'] += (team2_score - team1_score)
@@ -117,8 +76,9 @@ for cur in matches.json():
 
 for cur in teams.json():
     team_id = cur['id']
-    init(team_id)
+    init(team_id, id_score)
     id_score[team_id]['players'] = cur['players']
+
 
 # cur = matches.json()[1]
 # print(cur, id_score[cur['team1']]['players'], id_score[cur['team2']]['players'])
@@ -132,7 +92,7 @@ while True:
         name = question_str[pos:len(question_str) - 1]
 
         if not name in team_to_id.keys():
-            add_question_to_logs(question[0],name,[0,0,0])
+            add_question_to_logs(question[0], name, [0, 0, 0])
             print(0, 0, 0)
             continue
 
@@ -141,16 +101,16 @@ while True:
         losses = id_score[team_id]['losses']
         delta = id_score[team_id]['delta']
 
-        data_answer={'wins':wins,'losses':losses,'delta':delta}
-        data={'name':name}
-        add_question_to_logs(question[0],data,data_answer)
+        data_answer = {'wins': wins, 'losses': losses, 'delta': delta}
+        data = {'name': name}
+        add_question_to_logs(question[0], data, data_answer)
 
         print(wins, losses, delta)
     elif question[0] == 'versus?':
         id_1 = int(question[1])
         id_2 = int(question[2])
         answer = 0
-        data_matches=[]
+        data_matches = []
         for cur in matches.json():
             team1_id = cur['team1']
             team2_id = cur['team2']
@@ -162,17 +122,17 @@ while True:
             team2_id2 = id_2 in team2_players
             if (team1_id1 and team2_id2) or (team1_id2 and team2_id1):
                 answer += 1
-                current_match_info=cur
-                current_match_info['team1_name']=id_to_team[team1_id]
-                current_match_info['team2_name']=id_to_team[team2_id]
-                current_match_info['team1_players']=id_score[team1_id]['players']
-                current_match_info['team2_players']=id_score[team2_id]['players']
+                current_match_info = cur
+                current_match_info['team1_name'] = id_to_team[team1_id]
+                current_match_info['team2_name'] = id_to_team[team2_id]
+                current_match_info['team1_players'] = id_score[team1_id]['players']
+                current_match_info['team2_players'] = id_score[team2_id]['players']
                 data_matches.append(current_match_info)
-        
-        data={'id_1':id_1,'id_2':id_2}
-        data_answer={'answer':answer,'matches':data_matches}
-        add_question_to_logs(question[0],data,data_answer)
+
+        data = {'id_1': id_1, 'id_2': id_2}
+        data_answer = {'answer': answer, 'matches': data_matches}
+        add_question_to_logs(question[0], data, data_answer)
         print(answer)
     else:
-        add_question_to_logs(question[0],"incorrect question","incorrect question")
+        add_question_to_logs(question[0], "incorrect question", "incorrect question")
         print("incorrect question")
